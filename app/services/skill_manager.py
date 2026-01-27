@@ -19,5 +19,8 @@ class SkillManager:
         except subprocess.CalledProcessError as e:
             return False, e.stderr
 
-# 初始化指向特定路徑的技能管理器
-skill_manager = SkillManager("/Users/kennykang/Desktop/VibeProj/Anti/agentskills/.agent/skills/fa-report-improvement")
+# 初始化技能管理器，優先從環境變數讀取路徑
+DEFAULT_SKILL_PATH = "/Users/kennykang/Desktop/VibeProj/Anti/agentskills/.agent/skills/fa-report-improvement"
+skill_path = os.getenv("SKILL_PATH", DEFAULT_SKILL_PATH)
+
+skill_manager = SkillManager(skill_path)
