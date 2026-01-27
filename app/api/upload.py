@@ -3,7 +3,7 @@ import shutil
 import os
 import json
 from app.services.skill_manager import skill_manager
-from app.services.llm_client import llm_client
+
 
 router = APIRouter(prefix="/api")
 
