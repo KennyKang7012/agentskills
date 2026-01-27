@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FA 報告優化系統 | Agent Skills</title>
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>FA Report Improvement</h1>
+        <p class="subtitle">基於 8D 標準與 LLM 的半導體失效分析報告自動化優化平台</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 2rem;">
+            <div class="upload-area" id="ppt-zone">
+                <span class="upload-icon">📊</span>
+                <p>上傳 FA 報告 (.ppt/pptx)</p>
+                <button class="btn" onclick="document.getElementById('ppt-input').click()">選擇檔案</button>
+                <input type="file" id="ppt-input" hidden accept=".ppt,.pptx">
+                <div id="ppt-name" class="file-name"></div>
+            </div>
+
+            <div class="upload-area" id="json-zone">
+                <span class="upload-icon">📜</span>
+                <p>上傳評核 JSON (.json)</p>
+                <button class="btn" onclick="document.getElementById('json-input').click()">選擇檔案</button>
+                <input type="file" id="json-input" hidden accept=".json">
+                <div id="json-name" class="file-name"></div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="btn" id="process-btn"
+                style="background: var(--primary-hover); padding: 1rem 3rem; font-size: 1.2rem;"
+                disabled>開始優化報告</button>
+        </div>
+
+        <div class="status-panel" id="status-panel">
+            <div class="loader"></div>
+            <span id="status-text">正在上傳報告...</span>
+        </div>
+
+        <div id="result-area" style="margin-top: 2rem; display: none;">
+            <h3>處理完成！</h3>
+            <p>報告已按照 8D 標準優化。</p>
+            <a href="#" class="btn" id="download-link">下載優化後的報告</a>
+        </div>
+    </div>
+
+    <script>
+        const pptInput = document.getElementById('ppt-input');
+        const jsonInput = document.getElementById('json-input');
+        const pptName = document.getElementById('ppt-name');
+        const jsonName = document.getElementById('json-name');
+        const processBtn = document.getElementById('process-btn');
+
+        const statusPanel = document.getElementById('status-panel');
+        const statusText = document.getElementById('status-text');
+        const resultArea = document.getElementById('result-area');
+        const downloadLink = document.getElementById('download-link');
+
+        let pptFile = null;
+        let jsonFile = null;
+
+        pptInput.addEventListener('change', (e) => {
+            pptFile = e.target.files[0];
+            pptName.innerText = pptFile ? `已選擇：${pptFile.name}` : '';
+            checkInputs();
+        });
+
+        jsonInput.addEventListener('change', (e) => {
+            jsonFile = e.target.files[0];
+            jsonName.innerText = jsonFile ? `已選擇：${jsonFile.name}` : '';
+            checkInputs();
+        });
+
+        function checkInputs() {
+            processBtn.disabled = !(pptFile && jsonFile);
+        }
+
+        processBtn.addEventListener('click', async () => {
+            if (!pptFile || !jsonFile) return;
+
+            const formData = new FormData();
+            formData.append('report', pptFile);
+            formData.append('evaluation_json', jsonFile);
+
+            statusPanel.classList.add('active');
+            statusText.innerText = `正在分析並優化報告...`;
+            resultArea.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusPanel.classList.remove('active');
+                    resultArea.style.display = 'block';
+                    // 這裡先暫時指向 uploads 目錄（需在 FastAPI 加入靜態路徑或下載路由）
+                    downloadLink.href = `/api/download/${result.output_file}`;
+                } else {
+                    statusText.innerText = '錯誤：伺服器處理失敗';
+                }
+            } catch (err) {
+                statusText.innerText = '連線出錯';
+            }
+        });
+    </script>
+</body>
+
+</html>
