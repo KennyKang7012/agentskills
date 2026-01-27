@@ -21,12 +21,17 @@
 - [x] **CSS 樣式**: 使用高品質的 Vanilla CSS 設計，包含微動畫與深色模式支援。
 - [x] **JavaScript 邏輯**: 實作雙檔案驗證與 Fetch API 提交邏輯。
 
-## 4. 驗證計畫
-- [ ] **單元測試**: 測試技能元數據解析是否正確。
-- [ ] **整合測試**: 上傳一個樣本 `.pptx` 檔案，確保系統能呼叫 LLM 並產生優化後的報告。
-- [ ] **UI 測試**: 確保前端在不同瀏覽器下的顯示與互動正常。
+## 4. Phase 2: 雙文件與提示詞實作計畫
+- [ ] **提示詞功能開發**: 
+    - 修改 `index.html` 加入 Prompt TextArea。
+    - 修改 `/api/upload` 接收 `prompt` 字串參數。
+- [ ] **LLM 二次加工模組**:
+    - 在 `llm_client.py` 中實作 `refine_evaluation_json` 方法。
+    - 模型接收「原始 JSON + Prompt」後輸出「優化後的 JSON」。
+- [ ] **整合執行鏈路**:
+    - 實作條件邏輯：`if prompt: refine_json_via_llm() else: use_original_json()`。
+    - 最後統一將結果餵給 `SkillManager` 執行。
 
-## 使用者評論請求
-> [!IMPORTANT]
-> 1. 請確認 `gpt-oss-20b` 的 API 金鑰與 Endpoint 已就緒。
-> 2. 是否需要額外支援 LibreOffice 在環境中的路徑配置？
+## 5. 驗證計畫
+- [ ] **自動化測試**: 僅上傳一個 PPT 樣本，驗證是否能產出正確格式的 `improved_*.pptx`。
+- [ ] **AI 評分品質檢查**: 確認 LLM 產生的 JSON 評分是否符合邏輯。

@@ -31,6 +31,14 @@
             </div>
         </div>
 
+        <div style="margin-bottom: 2rem;">
+            <label for="prompt-input"
+                style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-weight: 500;">
+                優化提示詞 (選填):
+            </label>
+            <textarea id="prompt-input" class="prompt-box" placeholder="例如：特別加強根因分析部分的統計數據性，或指定改善對策的具體方向..."></textarea>
+        </div>
+
         <div style="text-align: center;">
             <button class="btn" id="process-btn"
                 style="background: var(--primary-hover); padding: 1rem 3rem; font-size: 1.2rem;"
@@ -52,6 +60,7 @@
     <script>
         const pptInput = document.getElementById('ppt-input');
         const jsonInput = document.getElementById('json-input');
+        const promptInput = document.getElementById('prompt-input');
         const pptName = document.getElementById('ppt-name');
         const jsonName = document.getElementById('json-name');
         const processBtn = document.getElementById('process-btn');
@@ -86,6 +95,7 @@
             const formData = new FormData();
             formData.append('report', pptFile);
             formData.append('evaluation_json', jsonFile);
+            formData.append('prompt', promptInput.value);
 
             statusPanel.classList.add('active');
             statusText.innerText = `正在分析並優化報告...`;

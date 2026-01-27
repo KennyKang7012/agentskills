@@ -1,8 +1,9 @@
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks
 import shutil
 import os
 import json
 from app.services.skill_manager import skill_manager
+from app.services.llm_client import llm_client
 
 
 router = APIRouter(prefix="/api")
@@ -14,7 +15,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 async def upload_report(
     background_tasks: BackgroundTasks, 
     report: UploadFile = File(...), 
-    evaluation_json: UploadFile = File(...)
+    evaluation_json: UploadFile = File(...),
+    prompt: str = Form(None)
 ):
     report_path = os.path.join(UPLOAD_DIR, report.filename)
     json_path = os.path.join(UPLOAD_DIR, evaluation_json.filename)
@@ -32,12 +34,31 @@ async def upload_report(
     output_path = os.path.join(UPLOAD_DIR, output_filename)
     
     # 執行背景任務
-    background_tasks.add_task(process_report_task, report_path, json_path, output_path)
+    background_tasks.add_task(process_report_task, report_path, json_path, output_path, prompt)
     
     return {"status": "processing", "output_file": output_filename}
 
-async def process_report_task(report_path: str, json_path: str, output_path: str):
-    success, message = skill_manager.run_improvement(report_path, json_path, output_path)
+async def process_report_task(report_path: str, json_path: str, output_path: str, prompt: str = None):
+    final_json_path = json_path
+    
+    # 如果有提示詞，啟動 LLM 加工
+    if prompt and prompt.strip():
+        print(f"啟動 AI 加工模式，提示詞: {prompt}")
+        with open(json_path, "r", encoding="utf-8") as f:
+            original_json_data = json.load(f)
+        
+        success, refined_data = await llm_client.refine_evaluation_json(original_json_data, prompt)
+        if success:
+            refined_json_path = json_path.replace(".json", "_refined.json")
+            with open(refined_json_path, "w", encoding="utf-8") as f:
+                json.dump(refined_data, f, ensure_ascii=False, indent=2)
+            final_json_path = refined_json_path
+            print("AI 加工完成")
+        else:
+            print(f"AI 加工失敗: {refined_data}")
+            # 失敗時退回到原始 JSON
+
+    success, message = skill_manager.run_improvement(report_path, final_json_path, output_path)
     if success:
         print(f"Success: {message}")
     else:
