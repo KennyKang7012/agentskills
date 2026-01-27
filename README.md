@@ -28,12 +28,16 @@ uv sync
 
 ### 2. 設定環境變數
 
-建立 `.env` 檔案或直接匯入環境變數（用於 LLM API）：
+複製範例檔案並填入您的 API 金鑰與路徑設定：
 
 ```bash
-export OPENAI_API_KEY="your-api-key"
-export OPENAI_API_BASE="https://api.openai.com/v1"
+cp .env.example .env
 ```
+
+編輯 `.env` 檔案：
+- `OPENAI_API_KEY`: 您的 gpt-oss-20b API 金鑰。
+- `OPENAI_API_BASE`: API 基礎 URL (例如 `https://api.openai.com/v1`)。
+- `SKILL_PATH`: 指向 `fa-report-improvement` 技能包的絕對路徑。
 
 ### 3. 啟動伺服器
 
