@@ -122,13 +122,7 @@ The script automatically:
 
 ⚠️ **Critical**: Always use virtual environment to avoid dependency conflicts and keep your system clean.
 
-**Recommended Install with uv (Modern)**:
-```bash
-uv sync
-uv run scripts/install.py
-```
-
-**Install with Standard Virtual Environment**:
+**Recommended Install with Virtual Environment**:
 ```bash
 # Create virtual environment
 cd ~/.claude/skills/fa-report-improvement
