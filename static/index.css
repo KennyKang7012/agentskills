@@ -74,9 +74,12 @@ p.subtitle {
     background: rgba(255, 255, 255, 0.02);
 }
 
-.upload-area:hover {
+.upload-area:hover,
+.upload-area.dragging {
     border-color: var(--primary-color);
     background: rgba(99, 102, 241, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
 .upload-icon {

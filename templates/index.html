@@ -74,6 +74,52 @@
         let selectedPpt = null;
         let selectedJson = null;
 
+        // --- 拖拽功能實作 ---
+        const zones = [
+            { el: document.getElementById('ppt-zone'), input: pptInput, accept: ['.ppt', '.pptx'], setter: (f) => selectedPpt = f, nameNode: pptName },
+            { el: document.getElementById('json-zone'), input: jsonInput, accept: ['.json'], setter: (f) => selectedJson = f, nameNode: jsonName }
+        ];
+
+        zones.forEach(zone => {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                zone.el.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                zone.el.addEventListener(eventName, () => {
+                    zone.el.classList.add('dragging');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                zone.el.addEventListener(eventName, () => {
+                    zone.el.classList.remove('dragging');
+                }, false);
+            });
+
+            zone.el.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                handleFileSelection(file, zone);
+            }, false);
+        });
+
+        function handleFileSelection(file, zone) {
+            if (!file) return;
+
+            const ext = '.' + file.name.split('.').pop().toLowerCase();
+            if (zone.accept.includes(ext)) {
+                zone.setter(file);
+                zone.nameNode.innerText = `已選擇：${file.name}`;
+                checkInputs();
+            } else {
+                alert(`不支援的檔案格式！請上傳範疇內的文件：${zone.accept.join(', ')}`);
+            }
+        }
+
         function updateUIError(type, msg) {
             statusPanel.classList.add('active');
             if (statusLoader) statusLoader.style.animation = 'none';
@@ -81,15 +127,11 @@
         }
 
         pptInput.addEventListener('change', (e) => {
-            selectedPpt = e.target.files[0];
-            pptName.innerText = selectedPpt ? `已選擇：${selectedPpt.name}` : '';
-            checkInputs();
+            handleFileSelection(e.target.files[0], zones[0]);
         });
 
         jsonInput.addEventListener('change', (e) => {
-            selectedJson = e.target.files[0];
-            jsonName.innerText = selectedJson ? `已選擇：${selectedJson.name}` : '';
-            checkInputs();
+            handleFileSelection(e.target.files[0], zones[1]);
         });
 
         function checkInputs() {

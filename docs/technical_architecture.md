@@ -1,7 +1,7 @@
-# 技術架構文件
+# 技術架構文件 (v2.1.4)
 
 ## 概述
-本專案採用 **Agent Skill 模式 (Agent Skill Pattern)**，將 Web UI (Agent 介面) 與實際功能實作 (Skills) 進行分離。
+本專案採用 **Agent Skill 模式 (Agent Skill Pattern)**，將 Web UI (Agent 介面) 與實際功能實作 (Skills) 進行分離。自 v2.1.4 版本起，Web UI 進一步強化了檔案拖放上傳 (Drag and Drop) 支援，提供更直覺的互動體驗。
 
 ## 系統架構
 

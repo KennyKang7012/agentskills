@@ -16,7 +16,7 @@ Comprehensive improvement system for semiconductor FA reports with automatic .pp
 - ✅ Statistical validation integration
 - ✅ Automated content enhancement
 - ✅ Dual JSON format support (Array/Object)
-- ✅ **JSON Resilience (v2.1.3)**: Auto-sanitization of trailing dots/commas
+- ✅ **JSON Resilience (v2.1.4)**: Advanced auto-sanitization of trailing dots/commas and Markdown code blocks for direct LLM/CLI usage.
 
 ## Quick Start
 
@@ -62,8 +62,8 @@ If .ppt file detected:
 ### Step 2: Evaluation Analysis
 
 Parse evaluation JSON to identify scores and specific recommendations.
-**JSON Resilience (v2.1.3)**: 
-The script automatically sanitizes malformed JSON (e.g., trailing dots, commas, and Markdown code blocks) before parsing.
+**JSON Resilience (v2.1.4)**: 
+The script built-in logic automatically sanitizes malformed JSON (e.g., trailing dots, commas, and Markdown code blocks) before parsing. This ensures highly reliable performance when triggered directly via CLI by AI Agents like Claude or Gemini.
 
 **Supported JSON Formats:**
 
@@ -217,6 +217,6 @@ For detailed information:
 - `references/ppt-conversion-guide.md` - Format conversion details
 
 ---
-**版本**: 2.1.3  
+**版本**: 2.1.4  
 **最後更新**: 2026-01-28
 

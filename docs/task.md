@@ -73,3 +73,9 @@
     - [x] [UI] 增加前端 JSON 語法預檢與智慧修復功能
     - [x] [文件] 全面版本號同步與發布紀錄 [x]
     - [x] [驗證] 透過 Web UI 與 Coding Agent 完成全棧驗證
+
+- [x] **Phase 5: 使用者體驗巔峰 (v2.1.4)** [x]
+    - [x] [UI] 實作檔案拖拽上傳 (Drag and Drop) 功能
+    - [x] [CSS] 增加拖拽狀態視覺反饋 (Hover/Dragging Effects)
+    - [x] [JS] 整合拖放事件與副檔名校驗邏輯
+    - [x] [文件] 更新 PRD 與任務清單
