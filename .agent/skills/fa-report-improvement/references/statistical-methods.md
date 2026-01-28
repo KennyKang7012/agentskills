@@ -37,3 +37,8 @@ where SE = s / √n
 ## Template Text
 
 "Statistical analysis confirms significant difference. t-test shows failed samples had significantly higher [parameter] (p < [value]), providing strong evidence for [root cause]."
+
+---
+**版本**: 2.1.2  
+**最後更新**: 2026-01-28
+

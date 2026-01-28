@@ -215,3 +215,8 @@ For detailed information:
 - `references/improvement-templates.md` - Standard templates
 - `references/statistical-methods.md` - Statistical validation
 - `references/ppt-conversion-guide.md` - Format conversion details
+
+---
+**版本**: 2.1.2  
+**最後更新**: 2026-01-28
+
