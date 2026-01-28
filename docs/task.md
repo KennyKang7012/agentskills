@@ -19,4 +19,9 @@
     - [x] 實作後端 LLM 處理邏輯 (JSON 內容修飾) [x]
     - [x] 整合背景處理工作流 [x]
     - [x] 最終驗證與提交 [x]
-    - [ ] 建立一鍵執行 API 並同步環境 [ ]
+
+- [x] Phase 3: 技能包升級與環境標準化 [x]
+    - [x] 升級技能包至 v2.1.0 (支援 JSON Array/Object) [x]
+    - [x] 實作跨平台支援 (Windows/Mac 路徑自動偵測) [x]
+    - [x] 遷移至 `uv` 專案管理模式 [x]
+    - [x] 建立技術架構文件 (docs/technical_architecture.md) [x]

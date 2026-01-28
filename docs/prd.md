@@ -31,12 +31,18 @@
 - 實作 OpenAI 兼容的客戶端連接 `gpt-oss-20b`。
 - 設計 Prompt 範本，結合 FA 報告評核標準與技能指令。
 
-## 4. 系統架構 (草案)
+## 4. 系統架構
+詳細架構請參閱 [技術架構文件](technical_architecture.md)。
+
 - `app/main.py`: FastAPI 進入點與路由。
-- `app/services/skill_manager.py`: 負責發現與啟動技能包。
-- `app/services/llm_client.py`: 負責與 `gpt-oss-20b` 通訊。
+- `app/services/skill_manager.py`: 負責發現與啟動技能包 (跨平台支援)。
+- `app/services/llm_client.py`: 負責與 `gpt-oss-20b` 通訊 (支援環境變數配置)。
 - `static/`: 存放 CSS 與 JavaScript 檔案。
 - `templates/`: 存放 HTML 模板。
+
+## 5. 環境標準化 (Phase 3)
+- 採用 **分散式虛擬環境策略**：Web App 與 Skill 各自擁有獨立的 venv，確保隔離性。
+- 詳情請參閱 `docs/technical_architecture.md`。
 
 ## 6. Phase 2: 雙文件與提示詞驅動優化 (強化設計)
 

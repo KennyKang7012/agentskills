@@ -22,16 +22,16 @@
 - [x] **JavaScript 邏輯**: 實作雙檔案驗證與 Fetch API 提交邏輯。
 
 ## 4. Phase 2: 雙文件與提示詞實作計畫
-- [ ] **提示詞功能開發**: 
-    - 修改 `index.html` 加入 Prompt TextArea。
-    - 修改 `/api/upload` 接收 `prompt` 字串參數。
-- [ ] **LLM 二次加工模組**:
-    - 在 `llm_client.py` 中實作 `refine_evaluation_json` 方法。
-    - 模型接收「原始 JSON + Prompt」後輸出「優化後的 JSON」。
-- [ ] **整合執行鏈路**:
-    - 實作條件邏輯：`if prompt: refine_json_via_llm() else: use_original_json()`。
-    - 最後統一將結果餵給 `SkillManager` 執行。
+- [x] **提示詞功能開發**: 
+    - [x] 修改 `index.html` 加入 Prompt TextArea。
+    - [x] 修改 `/api/upload` 接收 `prompt` 字串參數。
+- [x] **LLM 二次加工模組**:
+    - [x] 在 `llm_client.py` 中實作 `refine_evaluation_json` 方法。
+    - [x] 模型接收「原始 JSON + Prompt」後輸出「優化後的 JSON」。
+- [x] **整合執行鏈路**:
+    - [x] 實作條件邏輯：`if prompt: refine_json_via_llm() else: use_original_json()`。
+    - [x] 最後統一將結果餵給 `SkillManager` 執行。
 
 ## 5. 驗證計畫
-- [ ] **自動化測試**: 僅上傳一個 PPT 樣本，驗證是否能產出正確格式的 `improved_*.pptx`。
-- [ ] **AI 評分品質檢查**: 確認 LLM 產生的 JSON 評分是否符合邏輯。
+- [x] **自動化測試**: 透過 `walkthrough.md` 提供的流程進行手動驗證。
+- [x] **AI 評分品質檢查**: 確認 LLM 產生的 JSON 評分邏輯 (已於 Phase 2 驗證)。

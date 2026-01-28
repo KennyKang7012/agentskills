@@ -41,12 +41,11 @@ cp .env.example .env
 
 ### 3. 啟動伺服器
 
-```bash
-export PYTHONPATH=$PYTHONPATH:.
-uv run app/main.py
+```powershell
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-開啟瀏覽器訪問：[http://localhost:8000](http://localhost:8000)
+開啟瀏覽器訪問：[http://localhost:8001](http://localhost:8001)
 
 ## 📂 專案結構
 
@@ -59,6 +58,7 @@ uv run app/main.py
 ## 📝 技術文件
 
 - [軟體需求文件 (PRD)](docs/prd.md)
+- [技術架構文件](docs/technical_architecture.md)
 - [實作計畫](docs/implementation_plan.md)
 - [測試與驗證指南](docs/walkthrough.md)
 

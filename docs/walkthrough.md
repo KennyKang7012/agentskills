@@ -12,16 +12,18 @@ cp .env.example .env
 ```
 
 ### 步驟 2：執行啟動指令
-請確保您在專案根目錄下，執行以下指令：
+請確保您在專案根目錄下，使用 `uv` 啟動服務：
 
-```bash
-# 設定 PYTHONPATH 以確保模組讀取正確
-export PYTHONPATH=$PYTHONPATH:.
-uv run app/main.py
+```powershell
+# 確保依賴已同步
+uv sync
+
+# 啟動應用程式 (Port 8001)
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 伺服器啟動後，請開啟瀏覽器並訪問：
-[http://localhost:8000](http://localhost:8000)
+[http://localhost:8001](http://localhost:8001)
 
 ## 2. 驗證步驟
 ## 2. UI 測試步驟
@@ -68,5 +70,5 @@ curl -X POST http://localhost:8000/api/upload \
 - 前端應提供正確的下載連結。
 
 ## 4. 常見問題排除
-- **連接拒絕**: 檢查 8000 端口是否被佔用。
+- **連接拒絕**: 檢查 8001 端口是否被佔用。
 - **模組錯誤**: 確保已執行 `export PYTHONPATH=.`。
