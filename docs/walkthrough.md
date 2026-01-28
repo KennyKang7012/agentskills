@@ -5,10 +5,12 @@
 ## 1. 準備工作與啟動伺服器
 
 ### 步驟 1：配置環境變數
-請確保您已建立 `.env` 檔案並正確設定 `OPENAI_API_KEY` 與 `SKILL_PATH`：
-```bash
-cp .env.example .env
-# 編輯 .env 填入金鑰與技能路徑
+請確保您已建立 `.env` 檔案。若要使用 **Ollama (本地模型)**，請參考 `.env.example` 中的註釋進行設定：
+```properties
+# Ollama 範例
+OPENAI_API_KEY=ollama
+OPENAI_API_BASE=http://localhost:11434/v1
+OPENAI_MODEL=llama3.1:latest
 ```
 
 ### 步驟 2：執行啟動指令
@@ -54,7 +56,7 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 若要直接測試整合提示詞的載入點：
 
 ```bash
-curl -X POST http://localhost:8000/api/upload \
+curl -X POST http://localhost:8001/api/upload \
   -F "report=@your_report.pptx" \
   -F "evaluation_json=@your_eval.json" \
   -F "prompt=請加強統計分析部分的專業性"
@@ -62,7 +64,7 @@ curl -X POST http://localhost:8000/api/upload \
 
 ## 4. 下載功能驗證
 1. 待優化完成後，點擊頁面上的「下載優化後的報告」按鈕。
-2. 確認是否成功下載檔名開頭為 `improved_` 的檔案。
+2. **檔名檢查**: 確認下載的檔案名稱格式為 `[原始檔名]_improved_[時間戳].pptx` (例如 `Report_improved_20240128_123055.pptx`)。
 
 ## 3. 預期結果
 - 後端終端機應顯示處理進度。

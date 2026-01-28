@@ -201,6 +201,16 @@ sudo apt install libreoffice
 - Run with appropriate user permissions
 - Avoid network drives if possible
 
+### Unicode / Encoding Errors
+
+**Symptom**: `UnicodeEncodeError: 'cp950' codec can't encode character...`
+
+**Cause**: Windows consoles (CMD/PowerShell) often default to legacy encodings (CP950/CP1252) which crash when scripts try to print emojis (⚠️, ✅).
+
+**Solution**:
+- The scripts have been patched to enforce UTF-8 output: `sys.stdout.reconfigure(encoding='utf-8')`.
+- Ensure your calling process (Agent or Web App) reads stdout with `encoding='utf-8'`.
+
 ## Manual Conversion Methods
 
 If automatic conversion fails completely:

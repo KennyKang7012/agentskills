@@ -9,6 +9,13 @@ import json
 import os
 import sys
 import subprocess
+import shutil
+
+# 強制 stdout/stderr 使用 utf-8 編碼 (解決 Windows cp950 問題)
+if sys.platform.startswith('win'):
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
 from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt

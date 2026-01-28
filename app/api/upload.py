@@ -13,7 +13,6 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/upload")
 async def upload_report(
-    background_tasks: BackgroundTasks, 
     report: UploadFile = File(...), 
     evaluation_json: UploadFile = File(...),
     prompt: str = Form(None)
@@ -27,16 +26,17 @@ async def upload_report(
     with open(json_path, "wb") as buffer:
         shutil.copyfileobj(evaluation_json.file, buffer)
     
-    output_filename = f"improved_{report.filename}"
-    if not output_filename.endswith(".pptx"):
-        output_filename = os.path.splitext(output_filename)[0] + ".pptx"
+    import time
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    base_name = os.path.splitext(report.filename)[0]
+    output_filename = f"{base_name}_improved_{timestamp}.pptx"
     
     output_path = os.path.join(UPLOAD_DIR, output_filename)
     
-    # 執行背景任務
-    background_tasks.add_task(process_report_task, report_path, json_path, output_path, prompt)
+    # 改為同步等待，確保前端能等到結果
+    await process_report_task(report_path, json_path, output_path, prompt)
     
-    return {"status": "processing", "output_file": output_filename}
+    return {"status": "completed", "output_file": output_filename}
 
 import logging
 

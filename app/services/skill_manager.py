@@ -31,7 +31,7 @@ class SkillManager:
             result = subprocess.run(
                 [self.python_executable, self.script_path, input_file, eval_json, output_file],
                 capture_output=True,
-                text=True,
+                encoding='utf-8',
                 check=True
             )
             return True, result.stdout

@@ -25,3 +25,9 @@
     - [x] 實作跨平台支援 (Windows/Mac 路徑自動偵測) [x]
     - [x] 遷移至 `uv` 專案管理模式 [x]
     - [x] 建立技術架構文件 (docs/technical_architecture.md) [x]
+
+- [x] System Testing & UX Polish [x]
+    - [x] 驗證 Ollama (llama3.1) 支援 [x]
+    - [x] 修復 Windows 編碼問題 (UTF-8 Stdout) [x]
+    - [x] 優化使用者體驗 (同步等待模式) [x]
+    - [x] 自定義輸出檔名 (時間戳記) [x]

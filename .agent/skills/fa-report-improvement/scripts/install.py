@@ -10,6 +10,11 @@ import sys
 import subprocess
 import platform
 
+# 強制 stdout/stderr 使用 utf-8 編碼 (解決 Windows cp950 問題)
+if sys.platform.startswith('win'):
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
 def print_header(text):
     """打印標題"""
     print("\n" + "="*60)

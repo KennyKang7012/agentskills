@@ -122,7 +122,13 @@ The script automatically:
 
 ⚠️ **Critical**: Always use virtual environment to avoid dependency conflicts and keep your system clean.
 
-**Recommended Install with Virtual Environment**:
+**Recommended Install with uv (Modern)**:
+```bash
+uv sync
+uv run scripts/install.py
+```
+
+**Install with Standard Virtual Environment**:
 ```bash
 # Create virtual environment
 cd ~/.claude/skills/fa-report-improvement
@@ -194,6 +200,12 @@ If auto-conversion fails:
 - Verify evaluation JSON structure
 - Ensure output directory exists
 - Review error messages for specific issues
+
+- Review error messages for specific issues
+
+### Encoding Issues (Windows)
+- Script enforces UTF-8 output to prevent `cp950` errors.
+- Ensure your terminal supports UTF-8.
 
 ## Integration with Other Tools
 

@@ -12,7 +12,16 @@
 
 ⚠️ **重要**: 強烈建議使用虛擬環境，避免污染全局 Python 環境和依賴衝突
 
-### 方法 1: 使用虛擬環境安裝 (強烈推薦) ⭐
+### 方法 1: 使用 uv 安裝 (現代化推薦) 🚀
+```bash
+# 初始化並安裝依賴 (自動創建虛擬環境)
+uv sync
+
+# 執行安裝腳本
+uv run scripts/install.py
+```
+
+### 方法 2: 使用虛擬環境安裝 (傳統方式) ⭐
 
 ```bash
 # 1. 解壓 skill 文件
@@ -180,6 +189,13 @@ pip install python-pptx
 ```bash
 # 解決方案: 安裝 pywin32
 pip install pywin32
+```
+
+### 問題: "UnicodeEncodeError: 'cp950' codec..." (Windows)
+
+```bash
+# 解決方案: 腳本已內建 utf-8 強制輸出修正 (v2.1.2)
+# 若仍有問題，請確保執行環境支援 UTF-8
 ```
 
 ## 💡 功能特性

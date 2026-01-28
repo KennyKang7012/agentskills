@@ -99,7 +99,7 @@
 
             statusPanel.classList.add('active');
             statusText.innerText = `正在分析並優化報告...`;
-            resultArea.style.display = 'none';
+            resultArea.style.display = 'none'; // 確保開始時隱藏結果區
 
             try {
                 const response = await fetch('/api/upload', {
