@@ -123,3 +123,13 @@ if result['status'] == 'completed':
         f.write(pptx_content)
     print("優化完成並已下載！")
 ```
+
+---
+
+## 7. 給 AI 開發助手 (如 Claude Code) 的對接建議
+
+若您使用 Claude Code、GitHub Copilot 或其他 AI 助理來開發對接程式碼，建議直接將本檔案的內容貼給它，並配合以下指令 (Prompt)：
+
+> 「我是開發者，現在要實作一個客戶端來呼叫 **FA Report 改善平台**。請參考 `docs/api_integration_guide.md`，幫我寫一個 Python 腳本，能夠讀取本地的 `.pptx` 與 `.json`，並透過 `/api/upload-direct` 接口獲取優化後的結果並存檔。請注意處理效能延遲，加入適當的 Timeout 設定並顯示進度日誌。」
+
+這樣 AI 助手能根據本指南，精確地實作金鑰驗證與逾時處理邏輯。
