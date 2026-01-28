@@ -34,9 +34,23 @@ async def upload_report(
     output_path = os.path.join(UPLOAD_DIR, output_filename)
     
     # 改為同步等待，確保前端能等到結果
-    await process_report_task(report_path, json_path, output_path, prompt)
+    success, message = await process_report_task(report_path, json_path, output_path, prompt)
     
-    return {"status": "completed", "output_file": output_filename}
+    if success:
+        return {"status": "completed", "output_file": output_filename}
+    else:
+        # 針對常見錯誤進行分類提示
+        error_type = "處理失敗"
+        if "JSON" in message or "json" in message.lower():
+            error_type = "JSON 格式錯誤"
+        elif "ppt" in message.lower():
+            error_type = "PPT 轉換/處理失敗"
+            
+        return {
+            "status": "error", 
+            "error_type": error_type,
+            "message": message
+        }
 
 import logging
 
@@ -71,11 +85,7 @@ async def process_report_task(report_path: str, json_path: str, output_path: str
             logger.error(f"AI 加工過程發生異常: {e}")
 
     logger.info(f"Calling skill manager with: {final_json_path}")
-    success, message = skill_manager.run_improvement(report_path, final_json_path, output_path)
-    if success:
-        logger.info(f"Success: {message}")
-    else:
-        logger.error(f"Error: {message}")
+    return skill_manager.run_improvement(report_path, final_json_path, output_path)
 
 from fastapi.responses import FileResponse
 

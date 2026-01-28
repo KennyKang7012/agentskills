@@ -66,58 +66,81 @@
         const processBtn = document.getElementById('process-btn');
 
         const statusPanel = document.getElementById('status-panel');
+        const statusLoader = document.querySelector('.loader');
         const statusText = document.getElementById('status-text');
         const resultArea = document.getElementById('result-area');
         const downloadLink = document.getElementById('download-link');
 
-        let pptFile = null;
-        let jsonFile = null;
+        let selectedPpt = null;
+        let selectedJson = null;
+
+        function updateUIError(type, msg) {
+            statusPanel.classList.add('active');
+            if (statusLoader) statusLoader.style.animation = 'none';
+            statusText.innerHTML = `<span style="color: #ff5252; font-weight: bold;">${type}</span><br><small style="color: #fca5a5;">${msg}</small>`;
+        }
 
         pptInput.addEventListener('change', (e) => {
-            pptFile = e.target.files[0];
-            pptName.innerText = pptFile ? `已選擇：${pptFile.name}` : '';
+            selectedPpt = e.target.files[0];
+            pptName.innerText = selectedPpt ? `已選擇：${selectedPpt.name}` : '';
             checkInputs();
         });
 
         jsonInput.addEventListener('change', (e) => {
-            jsonFile = e.target.files[0];
-            jsonName.innerText = jsonFile ? `已選擇：${jsonFile.name}` : '';
+            selectedJson = e.target.files[0];
+            jsonName.innerText = selectedJson ? `已選擇：${selectedJson.name}` : '';
             checkInputs();
         });
 
         function checkInputs() {
-            processBtn.disabled = !(pptFile && jsonFile);
+            processBtn.disabled = !(selectedPpt && selectedJson);
         }
 
         processBtn.addEventListener('click', async () => {
-            if (!pptFile || !jsonFile) return;
-
-            const formData = new FormData();
-            formData.append('report', pptFile);
-            formData.append('evaluation_json', jsonFile);
-            formData.append('prompt', promptInput.value);
-
-            statusPanel.classList.add('active');
-            statusText.innerText = `正在分析並優化報告...`;
-            resultArea.style.display = 'none'; // 確保開始時隱藏結果區
-
             try {
+                if (!selectedPpt || !selectedJson) return;
+
+                const formData = new FormData();
+                formData.append('report', selectedPpt);
+                formData.append('evaluation_json', selectedJson);
+                formData.append('prompt', promptInput.value);
+
+                // 重設狀態面板
+                statusPanel.classList.add('active');
+                resultArea.style.display = 'none';
+                statusText.innerText = '正在分析並優化報告...';
+                if (statusLoader) statusLoader.style.animation = 'spin 1.5s linear infinite';
+
+                // 1. 前端 JSON 語法預檢 (智慧容錯模式)
+                try {
+                    const jsonText = await selectedJson.text();
+                    JSON.parse(jsonText);
+                } catch (e) {
+                    // 偵測到語法錯誤，但我們選擇相信後端的「自動清洗」能力
+                    console.warn('前端偵測到 JSON 語法疑慮，嘗試交由後端自動修正:', e.message);
+                    statusText.innerHTML = `正在分析並優化報告...<br><small style="color: #818cf8;">(偵測到 JSON 格式瑕疵，已啟動自動容錯修復模式)</small>`;
+                }
+
+                // 2. 傳送請求 (讓後端 Regex 發揮作用)
                 const response = await fetch('/api/upload', {
                     method: 'POST',
                     body: formData
                 });
+
                 const result = await response.json();
 
-                if (response.ok) {
+                if (response.ok && result.status === 'completed') {
                     statusPanel.classList.remove('active');
                     resultArea.style.display = 'block';
-                    // 這裡先暫時指向 uploads 目錄（需在 FastAPI 加入靜態路徑或下載路由）
                     downloadLink.href = `/api/download/${result.output_file}`;
                 } else {
-                    statusText.innerText = '錯誤：伺服器處理失敗';
+                    const errorMsg = result.message || '伺服器處理失敗';
+                    const errorType = result.error_type || '處理出錯';
+                    updateUIError(errorType, errorMsg);
                 }
             } catch (err) {
-                statusText.innerText = '連線出錯';
+                console.error(err);
+                updateUIError('系統連線異常', err.message || '無法與伺服器通訊');
             }
         });
     </script>

@@ -329,6 +329,6 @@ The integrated PPT conversion system provides:
 This ensures the FA Report Improvement skill works seamlessly with both modern and legacy PowerPoint formats.
 
 ---
-**版本**: 2.1.2  
+**版本**: 2.1.3  
 **最後更新**: 2026-01-28
 

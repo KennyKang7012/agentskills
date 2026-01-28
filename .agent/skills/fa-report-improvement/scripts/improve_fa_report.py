@@ -43,10 +43,38 @@ def auto_convert_if_needed(input_file):
     
     return input_file, None
 
+def sanitize_json_content(content):
+    """清理 JSON 內容，移除多餘結尾符號或 Markdown 標記"""
+    import re
+    # 移除 Markdown 代碼塊標記
+    content = content.replace("```json", "").replace("```", "").strip()
+    
+    # 移除結尾可能存在的標點符號 (如 }. 或 }, 或 }; )
+    content = re.sub(r'\}\s*[,.;\s]*$', '}', content)
+    content = re.sub(r'\]\s*[,.;\s]*$', ']', content)
+    
+    # 移除內容中物件或陣列結尾多餘的逗號 (如 "a": 1, } -> "a": 1 })
+    content = re.sub(r',\s*\}', '}', content)
+    content = re.sub(r',\s*\]', ']', content)
+    
+    return content
+
 def load_evaluation(eval_path):
     """載入評估結果"""
     with open(eval_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+        raw_content = f.read()
+        
+    try:
+        data = json.loads(raw_content)
+    except json.JSONDecodeError:
+        # 嘗試清洗後再次解析
+        try:
+            sanitized = sanitize_json_content(raw_content)
+            data = json.loads(sanitized)
+        except Exception as e:
+            # 如果還是失敗，拋出更有意義的訊息
+            raise ValueError(f"JSON 格式解析失敗 (已嘗試自動修正仍無效)。原始錯誤: {str(e)}")
+
     # Handle JSON array format - take first item if it's a list
     if isinstance(data, list) and len(data) > 0:
         return data[0]

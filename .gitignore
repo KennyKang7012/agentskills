@@ -28,7 +28,6 @@ wheels/
 *.pyd
 
 # Package manager
-uv.lock
 pip-log.txt
 pip-delete-this-directory.txt
 
@@ -92,3 +91,6 @@ logs/
 
 # LLM evaluation suggestion files
 _summary*.json
+evaluation.json
+broken.json
+malformed.json

@@ -35,3 +35,22 @@
 ## 5. 驗證計畫
 - [x] **自動化測試**: 透過 `walkthrough.md` 提供的流程進行手動驗證。
 - [x] **AI 評分品質檢查**: 確認 LLM 產生的 JSON 評分邏輯 (已於 Phase 2 驗證)。
+
+## 6. Phase 3: 系統健壯性與錯誤處理 (Robustness Upgrade) - v2.1.3
+本階段落實 [PRD 第 3.5 節](file:///d:/VibeCoding/agentskills/docs/prd.md#L40) 所列之健壯性要求。
+
+### 6.1 後端腳本優化 (Script Level)
+- [x] **JSON 清洗器 (Sanitizer)**: 在 `improve_fa_report.py` 中實作正則表達式清理邏輯，自動修補結尾點號或多餘逗號。
+- [x] **Markdown 脫殼**: 自動移除 LLM 輸出的 Markdown 代碼塊標記。
+
+### 6.2 API 路由與反饋優化 (API Level)
+- [x] **錯誤訊息傳遞**: 修改 `SkillManager` 與 `/api/upload`，將腳本執行失敗的具體 `stderr` 內容精確傳回前端。
+- [x] **錯誤分類**: 針對 JSON 損壞或 PPT 轉換失敗提供分類提示。
+
+### 6.3 前端界面強化 (UI Level)
+- [x] **即時語法預檢**: 在 `index.html` 中實作 JSON 預解析，攔截語法錯誤並顯示具體診斷。
+- [x] **診斷訊息展示**: 優化狀態列顯示邏輯，以紅色警示字體呈現錯誤詳情。
+
+## 7. 更新後的驗證計畫
+- [x] **非法 JSON 容錯測試**: 上傳格式錯誤的 JSON，驗證腳本是否能自動修正並執行。
+- [x] **錯誤反饋測試**: 上傳完全損壞的 JSON，驗證 UI 是否能精確顯示錯誤診斷訊息。

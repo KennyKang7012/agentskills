@@ -36,8 +36,9 @@ class SkillManager:
             )
             return True, result.stdout
         except subprocess.CalledProcessError as e:
-            error_msg = f"Script execution failed.\nStdout: {e.stdout}\nStderr: {e.stderr}"
-            print(error_msg)
+            error_msg = f"腳本執行失敗。\n[錯誤詳情]: {e.stderr}"
+            print(f"Stdout: {e.stdout}")
+            print(f"Stderr: {e.stderr}")
             return False, error_msg
 
 # 初始化技能管理器，優先從環境變數讀取路徑
