@@ -29,7 +29,10 @@ inputs:               # 定義前端動態生成的欄位
 
 - **標準輸出 (Stdout)**: 用於返回處理進度。
 - **標準錯誤 (Stderr)**: 用於返回錯誤診斷訊息。
-- **結束代碼 (Exit Code)**: `0` 代表成功，其餘代表失敗。
+## 4. 跨平台相容性規範 (Cross-Platform)
+為了確保 macOS 開發與 Windows 執行無縫對接，必須遵守：
 
-## 3. 輸出規範
-- 所有產出的檔案應放置於平臺指定的 `--output` 路徑中。
+- **路徑處理**: 程式碼內一律使用 `os.path.join()` 或 `pathlib`，嚴禁使用硬編碼的 `/` 或 `\`。
+- **編碼格式**: 讀寫 `SKILL.md` 與任何輸出檔案時，必須明確指定 `encoding='utf-8'`。
+- **虛擬環境定位**: 平臺應根據 `platform.system()` 動態切換 `bin/python` (Unix) 或 `Scripts/python.exe` (Windows)。
+- **Shell 執行**: 避免依賴特定的 Shell 命令 (如 `ls`, `rm`)，應使用 Python 內建模組實作檔案操作。

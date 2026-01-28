@@ -27,8 +27,15 @@
 | :--- | :--- |
 | **自動發現 (Discovery)** | 系統啟動時掃描 `.agent/skills/` 中包含 `SKILL.md` 的資料夾。 |
 | **自動配置 (Provisioning)** | 為新技能自動建立本地 `venv` 並執行 `pip install -r requirements.txt`。 |
-| **執行 (Execution)** | 標準化的 `SkillRunner` 負責處理 subprocess 呼叫、結束代碼與日誌擷取。 |
-| **遠測與診斷 (Telemetry)** | 將所有技能的日誌集中存儲於 `uploads/logs/` 目錄，以便除錯。 |
+| **執行 (Execution)** | 標準化的 `SkillRunner` 負責處理 subprocess 呼叫、結束代碼與日誌擷取，具備跨平台路徑適應力。 |
+| **遠測與診斷 (Telemetry)** | 將所有技能的日誌集中存儲於 `uploads/logs/` 目錄，以便環境除錯。 |
+
+## 4. 跨平台設計要點 (macOS vs Windows)
+
+為了確保平臺能在不同作業系統穩定執行，開發時需注意：
+1. **路徑正則化**: 內部傳遞路徑時，建議統一轉換為 `os.path.abspath()`。
+2. **環境啟動**: 識別並封裝不同系統的執行檔路徑差異（如 Windows 的 `.exe` 字尾）。
+3. **字元集**: 強制執行 `UTF-8` 協議，避免 Windows 預設 `cp950` 或 `gbk` 導致的解析失敗。
 
 > [!NOTE]
 > 本計劃的核心在於 **「解耦 (Decoupling)」**。核心網頁應用程式應充當處理身份驗證、路由和 UI 佈局的「外殼 (Shell)」，而所有業務邏輯應嚴格保留在技能包中。
