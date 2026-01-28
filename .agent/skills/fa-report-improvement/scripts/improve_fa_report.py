@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-FA Report Improvement Script - Enhanced Version
+FA Report Improvement Script v2.1.0
 自動改善半導體 FA 報告，支援 .ppt 和 .pptx 格式
+Updated: 2026-01-28
 """
 
 import json
@@ -39,6 +40,9 @@ def load_evaluation(eval_path):
     """載入評估結果"""
     with open(eval_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    # Handle JSON array format - take first item if it's a list
+    if isinstance(data, list) and len(data) > 0:
+        return data[0]
     return data
 
 def add_basic_info_slide(prs, eval_data):
@@ -338,7 +342,7 @@ def improve_report(input_pptx, eval_json, output_pptx):
         eval_data = load_evaluation(eval_json)
         
         print(f"原始分數: {eval_data.get('total_score', 'N/A')}")
-        print(f("等級: {eval_data.get('grade', 'N/A')}")
+        print(f"等級: {eval_data.get('grade', 'N/A')}")
         
         improvements = []
         dimensions = eval_data.get('dimensions', {})

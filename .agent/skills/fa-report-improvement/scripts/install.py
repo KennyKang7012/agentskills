@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-FA Report Improvement Skill - Installation Script
+FA Report Improvement Skill - Installation Script v2.1.0
 跨平台安裝腳本
+Updated: 2026-01-28
 """
 
 import os

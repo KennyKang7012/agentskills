@@ -15,6 +15,7 @@ Comprehensive improvement system for semiconductor FA reports with automatic .pp
 - ✅ Professional 8D methodology evaluation  
 - ✅ Statistical validation integration
 - ✅ Automated content enhancement
+- ✅ Dual JSON format support (Array/Object)
 
 ## Quick Start
 
@@ -64,19 +65,35 @@ Parse evaluation JSON to identify:
 - Specific improvement recommendations
 - Priority levels (High/Medium/Low)
 
+**Supported JSON Formats:**
+
+1. **Array Format** (e.g., `_summary_gpt.json`):
+```json
+[{"total_score": 44.3, "dimensions": {...}}]
+```
+
+2. **Object Format** (e.g., `_summary.json`):
+```json
+{"total_score": 55.3, "dimensions": {...}}
+```
+
 ### Step 3: Apply Improvements
 
 **Missing Basic Info (Score < 80)**:
 - Add slide with FA#, engineer, batch, customer, contact, failure rate
 
-**Insufficient Root Cause (Score < 75)**:
+**Insufficient Root Cause (Score < 80)**:
 - Add statistical analysis: t-test, CI, control groups
-
-**Poor Figures (Score < 85)**:
-- Add numbering, captions, references
 
 **No Prevention (Score < 85)**:
 - Add slide: process improvements, monitoring, training
+
+**Improvement Trigger Thresholds:**
+| Dimension | Threshold | Action |
+|-----------|-----------|--------|
+| 基本資訊完整性 | < 80 | Add basic info slide |
+| 根因分析 | < 80 | Add statistical analysis |
+| 改善對策 | < 85 | Add prevention measures |
 
 ### Step 4: Quality Verification
 

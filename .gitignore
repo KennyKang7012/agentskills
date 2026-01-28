@@ -1,8 +1,94 @@
+# Python
 .venv/
+venv/
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Byte-compiled / optimized / DLL files
 *.pyc
-uploads/
-.DS_Store
+*.pyo
+*.pyd
+
+# Package manager
+uv.lock
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment
+.env
+.env.local
+*.env
+
+# IDE
 .idea/
 .vscode/
-uv.lock
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Uploads & Temp files
+uploads/
+temp/
+tmp/
+*.tmp
+*.bak
+
+# Logs
+*.log
+logs/
+
+# Converted/Generated files
+*_converted.pptx
+*_improved.pptx
+
+# Skill virtual environments
+.agent/skills/*/venv/
+
+# FA Report files (original & improved)
+*.ppt
+*.pptx
+
+# LLM evaluation suggestion files
+_summary*.json

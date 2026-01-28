@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-PPT 到 PPTX 轉換工具
+PPT 到 PPTX 轉換工具 v2.1.0
 支持 LibreOffice 和 Windows COM 兩種方法
+Updated: 2026-01-28
 """
 
 import subprocess
