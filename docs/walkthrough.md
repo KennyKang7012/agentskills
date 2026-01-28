@@ -77,28 +77,47 @@ curl -X POST http://localhost:8001/api/upload \
 
 ---
 
-# 專案導覽 - v2.1.3 最終交付 (繁體中文版)
+# 實作記錄：API 安全強化與高效對接 (v2.1.6)
 
-本專案已達到高度的健壯性與使用者體驗，實現了 Web UI 與底層技能包之間的全面同步。
+本階段成功實作了 API Key 驗證機制，並新增了「一步到位」的高效對接接口，全面提升系統的安全與整合性。
 
-## ✅ 重大成就 (v2.1.3)
-- **極致 JSON 韌性**: 系統現在能自動修復常見的 LLM 輸出錯誤（例如結尾標點、多餘逗號、Markdown 標籤）。
-- **精確錯誤反饋**: 使用者能獲得清晰、具操作性的診斷訊息，而非模糊的失敗提示。
-- **智慧 UI 流程**: 前端預檢可防止錯誤上傳，同時允許後端對小瑕疵進行「智慧修復」。
-- **遺留格式支援**: 自動 `.ppt` 轉 `.pptx` 轉換功能保持穩定高效。
+## 完成的功能
 
-## 🧪 最終驗證環節
-我們進行了全方位的兩階段驗證：
+### 1. 安全驗證體系 (v2.1.5)
+- **智慧識別依賴 (get_api_key)**：
+    - **內部請求**：自動識別來自 Web UI 的瀏覽器請求，保持免金鑰的直覺操作。
+    - **外部請求**：強制校驗 `X-API-Key` 標頭，保護 `POST /api/upload`、`POST /api/upload-direct` 與 `GET /api/download`。
+- **配置管理**：支援 `.env` 驅動，預設金鑰為 `agent-skills-secret-2026`。
 
-### 1. Web UI 操作驗證
-- 測試 `malformed.json` (帶有結尾點號)：伺服器成功自動修復。
-- 測試 `broken.json` (語法嚴重錯誤)：UI 正確攔截並顯示詳細錯誤。
-- 確認了帶有時間戳記的輸出檔案命規。
+### 2. 「一步到位」直接下載接口 (v2.1.6)
+- **接口路由**：`POST /api/upload-direct`
+- **功能簡介**：調用端僅需一次請求即可同步完成上傳、AI 優化並直接獲取 `.pptx` 檔案串流，大幅簡化外部伺服器的對接開發難度。
 
-### 2. Coding Agent 操作驗證
-- 直接在命令列執行 `improve_fa_report.py`。
-- 使用不同模型來源（`_summary_gpt-oss120b.json` 與 `_summary_qwen3-vl-30b-a3b-instruct.json`）成功優化舊版 `.ppt` 報告。
-- 確認了 Windows 環境下繁體中文輸出的編碼穩定性。
+## 驗證結果與排錯指南
+
+我們透過真實的 FA 報告（約 2MB+）完成了全流程驗證：
+
+| 測試場景 | 方法 | 預期結果 | 測試狀態 | 備註 |
+| :--- | :--- | :--- | :--- | :--- |
+| **外部請求 (無金鑰)** | CLI | 403 Forbidden | ✅ 成功攔截 | 有效防止未授權存取 |
+| **外部請求 (正確金鑰)** | CLI | 200 OK | ✅ 驗證通過 | 順利進入處理流程 |
+| **一步到位下載** | CLI | 直接存為檔案 | ✅ 驗證通過 | 成功產出 2MB+ 報告 |
+| **Web UI 操作** | 瀏覽器 | 正常使用 | ✅ 無感相容 | 使用者體驗不受影響 |
+
+## 技術心得與開發筆記
+
+在測試過程中，我們獲得了對接真實大檔案的關鍵經驗：
+
+- **效能預期**：處理真實 PPT 檔案包含 AI 運算，平均耗時為 **15-30 秒**。初次對接時若使用 Dummy 資料會產生「極快」的錯覺，對接生產環境時必須將 **Timeout 設為 60-90 秒**。
+- **日誌追蹤**：已在後端增加 `Starting processing...` 與 `Processing finished...` 日誌，能有效排除開發時的「卡頓感」或是程序中斷疑慮。
+- **Content-Type 穩定性**：明確指定 `media_type` 為 PowerPoint 格式，確保調用端（如 Python httpx 或 curl）能精確識別回傳內容。
+
+## 修改過的檔案
+- [app/api/upload.py](file:///d:/VibeCoding/agentskills/app/api/upload.py) (核心邏輯與安全性)
+- [.env](file:///d:/VibeCoding/agentskills/.env) (金鑰配置)
+- [docs/api_integration_guide.md](file:///d:/VibeCoding/agentskills/docs/api_integration_guide.md) (技術文件)
+- [docs/task.md](file:///d:/VibeCoding/agentskills/docs/task.md) (進度更新)
+- [docs/prd.md](file:///d:/VibeCoding/agentskills/docs/prd.md) (版本歷史)
 
 ## 📁 最終狀態
 - **PRD**: 已更新版本歷史與健壯性詳解。

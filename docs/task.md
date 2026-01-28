@@ -79,3 +79,15 @@
     - [x] [CSS] 增加拖拽狀態視覺反饋 (Hover/Dragging Effects)
     - [x] [JS] 整合拖放事件與副檔名校驗邏輯
     - [x] [文件] 更新 PRD 與任務清單
+
+- [x] **Phase 6: 系統對接與安全 (v2.1.5)** [x]
+    - [x] [規劃] 撰寫 API Key 驗證實作計畫
+    - [x] [環境] 在 .env 增加 API_KEY 配置
+    - [x] [後端] 實作 FastAPI API Key 安全依賴 (Security Dependency)
+    - [x] [後端] 將實作套用至 /api/upload 與 /api/download 接口
+    - [x] [測試] 撰寫測試腳本模擬伺服器 A 進行呼叫驗證完成
+
+- [x] **Phase 7: 高效對接優化 (v2.1.6)** [x]
+    - [x] [後端] 新增 /api/upload-direct 直接回傳檔案接口 (一步到位)
+    - [x] [文件] 更新 API 整合指南與 PRD (包含下載接口說明)
+    - [x] [測試] 驗證單一 curl 指令完成下載功能

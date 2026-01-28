@@ -11,6 +11,8 @@
 - **現代化美學介面**: 採用深色模式與平滑動畫，極致的工程師使用體驗。
 - **檔案拖拽上傳 (v2.1.4 New)**: 支援直接拖曳 `.ppt/.pptx` 與 `.json` 檔案至感應區，操作更直覺。
 - **系統健壯性 (v2.1.3)**: 具備 JSON 語法自動容錯解析與精確錯誤反饋機制。
+- **API Key 安全驗證 (v2.1.5)**: 針對外部伺服器對接提供 `X-API-Key` 標頭驗證，保障傳輸安全。
+- **一步到位對接 (v2.1.6)**: 新增 `/api/upload-direct` 接口，一條指令同步完成上傳、優化與下載。
 
 ## 🛠️ 技術棧
 
@@ -41,6 +43,7 @@ cp .env.example .env
 - `OPENAI_API_KEY`: 您的 gpt-oss-20b API 金鑰。
 - `OPENAI_API_BASE`: API 基礎 URL (例如 `https://api.openai.com/v1`)。
 - `SKILL_PATH`: 指向 `fa-report-improvement` 技能包的絕對路徑。
+- `API_KEY`: 用於外部 API 驗證的秘密金鑰 (預設: `agent-skills-secret-2026`)。
 
 ### 3. 啟動伺服器
 
@@ -59,7 +62,7 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 - `uploads/`: 上傳與處理後的檔案存儲處
 
 ## 📝 技術文件
-
+- [API 整合指南](docs/api_integration_guide.md) (外部伺服器對接必看)
 - [軟體需求文件 (PRD)](docs/prd.md)
 - [技術架構文件](docs/technical_architecture.md)
 - [實作計畫](docs/implementation_plan.md)

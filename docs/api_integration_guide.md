@@ -15,34 +15,45 @@
 
 ## 2. 接口細節 (Endpoints)
 
-### 2.1 上傳並啟動優化任務
+### 2.1 上傳並啟動優化任務 (傳統模式)
 *   **路由**: `POST /api/upload`
-*   **Content-Type**: `multipart/form-data`
+*   **說明**: 推薦用於需要獲取檔名以進行版本管理的場景。回傳 JSON 包含 `output_file`。
 
-**請求參數 (Request Body):**
-| 參數名稱 | 類型 | 說明 |
-| :--- | :--- | :--- |
-| `report` | File | 待優化的 FA 報告 (.ppt 或 .pptx) |
-| `evaluation_json` | File | 評核標準 JSON 檔案 (.json) |
-| `prompt` | String | (選填) 優化指示提示詞 |
+---
+
+### 2.2 上傳並直接獲取檔案 ("一步到位" 模式)
+*   **路由**: `POST /api/upload-direct`
+*   **Content-Type**: `multipart/form-data`
+*   **說明**: 用於一條指令直接完成優化並下載檔案。
+
+**請求參數:** (與 2.1 相同)
 
 **成功響應 (200 OK):**
-```json
-{
-  "status": "completed",
-  "output_file": "report_improved_20260128_170000.pptx"
-}
+*   直接回傳二進制檔案串流 (.pptx)。
+
+**使用 CLI 一步下載範例:**
+```powershell
+curl.exe -H "X-API-Key: YOUR_KEY" -X POST http://localhost:8001/api/upload-direct -F "report=@report.pptx" -F "evaluation_json=@eval.json" -o "improved_final.pptx"
 ```
 
 ---
 
-### 2.2 下載優化報告
+### 2.3 下載優化報告 (配合 2.1 使用)
 *   **路徑**: `GET /api/download/{filename}`
+*   **Method**: `GET`
+*   **Header**: `X-API-Key: YOUR_KEY`
 *   **說明**: 使用從上傳接口獲得的 `output_file` 名稱來下載檔案。
 
 **響應:**
 *   **成功**: 二進制檔案串流 (application/vnd.openxmlformats-officedocument.presentationml.presentation)
-*   **失敗**: `{"error": "File not found"}`
+*   **失敗**: `{"error": "File not found"}` 或 `403 Forbidden` (金鑰錯誤)
+
+### 2.4 處理效能與逾時 (Performance & Timeout)
+**現象**：發送請求後看起來「卡住」沒有反應。
+- **原因**：本系統整合了 AI Brain 運算與 PPT 渲染引擎。處理一個真實的 PPT 檔案（2MB+）平均需要 **15-30 秒**。
+- **對策**：
+    - **調高 Timeout**：使用 `curl` 或程式碼調用時，請將 `timeout` 設定在 **60-90 秒** 以上。
+    - **避免中斷**：執行中請勿隨意中斷請求，否則伺服器可能會報出 `KeyboardInterrupt` 錯誤。
 
 ---
 
@@ -54,14 +65,39 @@
 2.  **上傳請求增加回調參數**：`POST /api/upload?callback_url=...`。
 3.  **任務完成後主動推播**：本系統優化完成後，主動發送一個 POST 請求給伺服器 A，通知處理成功並附帶下載連結。
 
-### 安全建議
+---
+
+## 4. 常見問題排查 (Troubleshooting)
+
+### 4.1 curl: (26) Failed to open/read local data
+**原因**：`curl` 找不到本地檔案。
+- **檢查點**：
+    - 檔案路徑前是否漏掉了 **`@`** 符號？ (正確格式: `-F "report=@filename.pptx"`)
+    - 檔名是否包含空格？ (建議將整個參數用引號包起來)
+    - 副檔名是否正確？ (例如 `.ppt` 與 `.pptx` 是否混淆)
+
+### 4.2 403 Forbidden
+**原因**：API Key 驗證失敗。
+- **檢查點**：
+    - Header 名稱是否為 `X-API-Key`？
+    - 金鑰內容是否與伺服器 `.env` 中的 `API_KEY` 一致？
+
+### 4.3 400 Bad Request (Value Error: Expected UploadFile)
+**原因**：參數傳遞格式錯誤。
+- **檢查點**：
+    - 是否漏掉了 `@` 符號導致 `curl` 將檔案當作純字串傳送？
+
+---
+
+## 5. 安全建議
+
 在生產環境中進行伺服器對伺服器 (S2S) 調用時，建議增加 **API Key 驗證**：
 - 在 Header 中加入 `X-API-Key: YOUR_SECRET_KEY`。
 - 本系統增加一組 Middleware 來驗證該 Header 內容。
 
 ---
 
-## 4. 範例程式碼 (Python Requests)
+## 6. 範例程式碼 (Python Requests)
 
 ```python
 import requests
