@@ -38,31 +38,44 @@ async def upload_report(
     
     return {"status": "processing", "output_file": output_filename}
 
+import logging
+
+# 設定日誌
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ... (router definition)
+
 async def process_report_task(report_path: str, json_path: str, output_path: str, prompt: str = None):
     final_json_path = json_path
+    logger.info(f"Starting processing for {report_path}")
     
     # 如果有提示詞，啟動 LLM 加工
     if prompt and prompt.strip():
-        print(f"啟動 AI 加工模式，提示詞: {prompt}")
-        with open(json_path, "r", encoding="utf-8") as f:
-            original_json_data = json.load(f)
-        
-        success, refined_data = await llm_client.refine_evaluation_json(original_json_data, prompt)
-        if success:
-            refined_json_path = json_path.replace(".json", "_refined.json")
-            with open(refined_json_path, "w", encoding="utf-8") as f:
-                json.dump(refined_data, f, ensure_ascii=False, indent=2)
-            final_json_path = refined_json_path
-            print("AI 加工完成")
-        else:
-            print(f"AI 加工失敗: {refined_data}")
-            # 失敗時退回到原始 JSON
+        logger.info(f"啟動 AI 加工模式，提示詞: {prompt}")
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                original_json_data = json.load(f)
+            
+            success, refined_data = await llm_client.refine_evaluation_json(original_json_data, prompt)
+            if success:
+                refined_json_path = json_path.replace(".json", "_refined.json")
+                with open(refined_json_path, "w", encoding="utf-8") as f:
+                    json.dump(refined_data, f, ensure_ascii=False, indent=2)
+                final_json_path = refined_json_path
+                logger.info("AI 加工完成")
+            else:
+                logger.error(f"AI 加工失敗: {refined_data}")
+                # 失敗時退回到原始 JSON
+        except Exception as e:
+            logger.error(f"AI 加工過程發生異常: {e}")
 
+    logger.info(f"Calling skill manager with: {final_json_path}")
     success, message = skill_manager.run_improvement(report_path, final_json_path, output_path)
     if success:
-        print(f"Success: {message}")
+        logger.info(f"Success: {message}")
     else:
-        print(f"Error: {message}")
+        logger.error(f"Error: {message}")
 
 from fastapi.responses import FileResponse
 

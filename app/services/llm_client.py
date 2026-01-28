@@ -6,7 +6,7 @@ class LLMClient:
     def __init__(self, api_key: str = None, base_url: str = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY", "your-api-key")
         self.base_url = base_url or os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
-        self.model = "gpt-oss-20b"
+        self.model = os.getenv("OPENAI_MODEL", "gpt-oss-20b")
 
     async def chat_completion(self, messages: List[Dict[str, str]]) -> str:
         async with httpx.AsyncClient() as client:
