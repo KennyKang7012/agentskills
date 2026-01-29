@@ -9,11 +9,11 @@
 現在系統會根據 `SKILL.md` 自動渲染介面，無需手動修改代碼即可擴充新功能。
 
 ### 1. 系統主介面
-![系統主介面](/Users/kennykang/.gemini/antigravity/brain/4b395d78-5b14-4713-80c6-8609fc30d9de/ui_landing.png)
+![系統主介面](../static/screenshots/ui_landing.png)
 > **圖 1**: 進入頁面後，您可以從下拉選單選擇不同的技能。
 
 ### 2. 動態表單渲染
-![動態表單渲染](/Users/kennykang/.gemini/antigravity/brain/4b395d78-5b14-4713-80c6-8609fc30d9de/ui_dynamic_form.png)
+![動態表單渲染](../static/screenshots/ui_dynamic_form.png)
 > **圖 2**: 選擇技能後（如 `fa-report-improvement`），系統會根據技能定義動態顯示對應的上傳欄位與提示詞區域。
 
 ---
