@@ -155,6 +155,19 @@ async def process_report_task(report_path: str, json_path: str, output_path: str
     logger.info(f"Calling skill manager with: {final_json_path}")
     return skill_manager.run_improvement(report_path, final_json_path, output_path)
 
+@router.get("/skills")
+async def list_skills(api_key: str = Depends(get_api_key)):
+    from app.services.skill_manager import skill_registry
+    return skill_registry.list_skills()
+
+@router.get("/skills/{skill_id}")
+async def get_skill_manifest(skill_id: str, api_key: str = Depends(get_api_key)):
+    from app.services.skill_manager import skill_registry
+    skill = skill_registry.get_skill(skill_id)
+    if not skill:
+        raise HTTPException(status_code=404, detail=f"Skill '{skill_id}' not found")
+    return skill.metadata
+
 @router.get("/download/{filename}")
 async def download_file(filename: str, api_key: str = Depends(get_api_key)):
     file_path = os.path.join(UPLOAD_DIR, filename)
