@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
 """
-FA Report Improvement Script v2.1.0
+FA Report Improvement Script v2.1.5
 自動改善半導體 FA 報告，支援 .ppt 和 .pptx 格式
-Updated: 2026-01-28
+Updated: 2026-01-29
 """
 
 import json
@@ -80,15 +79,48 @@ def load_evaluation(eval_path):
         return data[0]
     return data
 
+def get_or_create_title(slide):
+    """安全地獲取或創建標題形狀"""
+    if slide.shapes.title:
+        return slide.shapes.title
+    
+    # 如果 layout 沒有標題佔位符，嘗試尋找名稱包含 "title" 的形狀
+    for shape in slide.shapes:
+        if "title" in shape.name.lower():
+            return shape
+            
+    # 如果還是找不到，手動添加一個文字框作為標題
+    left = Inches(0.5)
+    top = Inches(0.3)
+    width = Inches(9)
+    height = Inches(1)
+    title_box = slide.shapes.add_textbox(left, top, width, height)
+    return title_box
+
+def get_or_create_body(slide):
+    """安全地獲取或創建主內容佔位符"""
+    # 嘗試找出第一個不是 title 的 placeholder
+    for shape in slide.placeholders:
+        if shape.placeholder_format.idx != 0:
+            return shape
+    
+    # 如果找不到，手動添加一個文本框
+    left = Inches(0.5)
+    top = Inches(1.5)
+    width = Inches(9)
+    height = Inches(5)
+    return slide.shapes.add_textbox(left, top, width, height)
+
 def add_basic_info_slide(prs, eval_data):
     """添加完整基本資訊投影片"""
     slide_layout = prs.slide_layouts[1]
     slide = prs.slides.add_slide(slide_layout)
     
-    title = slide.shapes.title
-    title.text = "FA 基本資訊"
+    title = get_or_create_title(slide)
+    if title.has_text_frame:
+        title.text = "FA 基本資訊"
     
-    content = slide.placeholders[1]
+    content = get_or_create_body(slide)
     tf = content.text_frame
     tf.clear()
     
@@ -126,10 +158,11 @@ def add_statistical_analysis_slide(prs):
     slide_layout = prs.slide_layouts[1]
     slide = prs.slides.add_slide(slide_layout)
     
-    title = slide.shapes.title
-    title.text = "根因統計驗證分析"
+    title = get_or_create_title(slide)
+    if title.has_text_frame:
+        title.text = "根因統計驗證分析"
     
-    content = slide.placeholders[1]
+    content = get_or_create_body(slide)
     tf = content.text_frame
     tf.clear()
     
@@ -173,10 +206,11 @@ def add_prevention_measures_slide(prs):
     slide_layout = prs.slide_layouts[1]
     slide = prs.slides.add_slide(slide_layout)
     
-    title = slide.shapes.title
-    title.text = "長期預防措施與監測計畫"
+    title = get_or_create_title(slide)
+    if title.has_text_frame:
+        title.text = "長期預防措施與監測計畫"
     
-    content = slide.placeholders[1]
+    content = get_or_create_body(slide)
     tf = content.text_frame
     tf.clear()
     

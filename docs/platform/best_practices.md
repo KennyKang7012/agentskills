@@ -44,3 +44,27 @@ if match:
 - **路徑正則化**：一律使用 `os.path.join()`，避免 `/` 或 `\` 的硬編碼問題。
 - **編碼一致性**：讀寫檔案必須明確宣告 `encoding='utf-8'`，防止 Windows 環境因 `cp950` 導致的崩潰。
 - **環境差異封裝**：將不同系統的 venv 路徑差異（`bin/` vs `Scripts/`）封裝在管理類別內部。
+
+## 3. 技能內容的強健性 (Content Robustness)
+
+### 經驗總結 (來自 v2.1.5 修復)
+在真實環境（如企業內部）中，輸入的文件格式（如 PPT）往往不符合標準模板。
+
+### 核心原則：容錯處理 (Error Tolerance)
+- **非標準佈局處理**：技能在處理文件時，應預期會遇到「缺少標題佔位符」或「非標準版面」。
+- **安全獲取機制**：應實作如 `get_or_create_title` 或 `get_or_create_body` 的邏輯，避免因 `AttributeError` 或 `IndexError` 導致整個平臺執行崩潰。
+- **降級顯示**：若無法精確修改某個區塊，應採取「新增一頁」而非「強制修改現有頁面」的策略。
+
+## 4. 提交規範 (Commit Policy)
+- **原子性提交**：代碼變更、環境配置與對應的文獻改建應合併為同一個 Commit，確保專案歷程的可回溯性。
+
+## 5. Python 開發陷阱與規範 (Technical Pitfalls)
+
+### 延遲匯入錯誤 (Late Import NameError)
+- **錯誤案例**：在 `llm_client.py` 中，`json` 模組在函式中段才匯入，但 `json.dumps()` 卻在函式開頭就被呼叫，導致 `NameError`。
+- **規範**：所有標準函式庫與第三方套件一律在檔案最頂端匯入。
+- **異常防護**：確保所有可能噴出異常的邏輯（特別是處理外部 API 或檔案讀寫）都包覆在完整的 `try...except` 區塊內，並提供精確的日誌輸出。
+
+### LLM 回傳 JSON 擷取 (Extra Data Error)
+- **錯誤案例**：LLM 在回傳 JSON 的同時，常會在前後夾雜廢話。若單純使用 `json.loads(content)`，會因為後方的廢話導致 `Extra data` 錯誤。
+- **最佳實作**：使用 `json.JSONDecoder().raw_decode(content)` 配合尋找第一個 `{` 的位置。此方法會在解析完第一個完整物件後立刻停止，完美忽略後方的雜訊。

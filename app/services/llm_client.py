@@ -1,5 +1,6 @@
 import httpx
 import os
+import json
 from typing import List, Dict
 
 class LLMClient:
@@ -18,10 +19,16 @@ class LLMClient:
                     "messages": messages,
                     "temperature": 0.7
                 },
-                timeout=60.0
+                timeout=300.0
             )
             response.raise_for_status()
-            return response.json()["choices"][0]["message"]["content"]
+            resp_json = response.json()
+            
+            if "choices" not in resp_json or not resp_json["choices"]:
+                raise ValueError(f"LLM 回傳格式錯誤: {resp_json}")
+                
+            content = resp_json["choices"][0]["message"].get("content", "")
+            return content
 
     async def refine_evaluation_json(self, original_json: dict, user_prompt: str):
         """根據使用者提示詞優化評核 JSON"""
@@ -42,13 +49,37 @@ class LLMClient:
         ]
 
         try:
-            import json
             raw_response = await self.chat_completion(messages)
-            # 嘗試解析回傳內容，去除可能的 markdown 區塊標註
-            json_str = raw_response.strip().replace("```json", "").replace("```", "").strip()
-            refined_data = json.loads(json_str)
-            return True, refined_data
+            content = raw_response.strip() if raw_response else ""
+            
+            if not content:
+                return False, "LLM 回傳內容為空 (Empty Content)"
+
+            # 輔助偵錯日誌
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"DEBUG: AI 原始回傳長度: {len(content)}")
+            
+            import re
+            decoder = json.JSONDecoder()
+            all_starts = [m.start() for m in re.finditer('{', content)]
+            
+            if not all_starts:
+                return False, f"回傳內容中找不到 '{{'。前 100 字: {content[:100]}"
+
+            for start_index in all_starts:
+                try:
+                    refined_data, end_pos = decoder.raw_decode(content[start_index:])
+                    return True, refined_data
+                except json.JSONDecodeError:
+                    continue
+            
+            return False, f"解析失敗。嘗試點數: {len(all_starts)}。內容片段: {content[:100]}"
+                
+        except httpx.HTTPStatusError as e:
+            return False, f"LLM API 錯誤 (HTTP {e.response.status_code}): {e.response.text[:100]}"
         except Exception as e:
-            return False, str(e)
+            error_msg = str(e) or type(e).__name__
+            return False, f"LLM 處理異常: {error_msg}"
 
 llm_client = LLMClient()

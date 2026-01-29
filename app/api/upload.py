@@ -8,8 +8,34 @@ from app.services.skill_manager import skill_manager
 from app.services.llm_client import llm_client
 from fastapi.security import APIKeyHeader
 
+import logging
+# 設定日誌
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 API_KEY_NAME = "X-API-Key"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+import re
+
+def robust_load_json(file_path: str):
+    """強健地讀取 JSON 檔案，處理可能的尾隨逗號或多餘字元"""
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+    
+    # 使用 JSONDecoder 處理尾擬雜訊
+    try:
+        start_index = content.find('{')
+        if start_index == -1:
+            return json.loads(content)
+            
+        decoder = json.JSONDecoder()
+        data, end_pos = decoder.raw_decode(content[start_index:])
+        logger.info(f"DEBUG: Robust Load Success (EndPos: {end_pos}, TotalLen: {len(content)})")
+        return data
+    except Exception as e:
+        logger.warning(f"Robust Load Failed, falling back: {e}")
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
 def get_api_key(
     request: Request,
@@ -120,11 +146,7 @@ def handle_error(message):
         "message": message
     }
 
-import logging
-
-# 設定日誌
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# ... (helper functions above)
 
 # ... (router definition)
 
@@ -136,8 +158,7 @@ async def process_report_task(report_path: str, json_path: str, output_path: str
     if prompt and prompt.strip():
         logger.info(f"啟動 AI 加工模式，提示詞: {prompt}")
         try:
-            with open(json_path, "r", encoding="utf-8") as f:
-                original_json_data = json.load(f)
+            original_json_data = robust_load_json(json_path)
             
             success, refined_data = await llm_client.refine_evaluation_json(original_json_data, prompt)
             if success:

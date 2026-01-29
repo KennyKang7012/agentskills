@@ -19,7 +19,7 @@
 - **後端**: FastAPI (Python)
 - **環境管理**: `uv`
 - **前端**: HTML5 / CSS3 (Vanilla) / JavaScript
-- **AI 模型**: `gpt-oss-20b` (OpenAI 兼容 API)
+- **AI 模型**: `gpt-oss:20b` (OpenAI 兼容 API)
 
 ## 🚀 快速啟動
 
@@ -67,6 +67,10 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 - [技術架構文件](docs/technical_architecture.md)
 - [實作計畫](docs/implementation_plan.md)
 - [測試與驗證指南](docs/walkthrough.md)
+- [👉 操作手冊 (v3.0)](docs/user_manual_v3.md)
+- [平臺化：動態技能 Manifest 實作計畫](docs/platform/implementation_plan_v3_core.md)
+- [平臺化：AI 解析強健化實作計畫](docs/platform/implementation_plan_ai_robustness.md)
+- [平臺開發最佳實作](docs/platform/best_practices.md)
 
 ---
 Developed with ❤️ using Agent Skills.

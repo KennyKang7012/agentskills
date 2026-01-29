@@ -13,33 +13,25 @@
         <h1>FA Report Improvement</h1>
         <p class="subtitle">基於 8D 標準與 LLM 的半導體失效分析報告自動化優化平台</p>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 2rem;">
-            <div class="upload-area" id="ppt-zone">
-                <span class="upload-icon">📊</span>
-                <p>上傳 FA 報告 (.ppt/pptx)</p>
-                <button class="btn" onclick="document.getElementById('ppt-input').click()">選擇檔案</button>
-                <input type="file" id="ppt-input" hidden accept=".ppt,.pptx">
-                <div id="ppt-name" class="file-name"></div>
-            </div>
-
-            <div class="upload-area" id="json-zone">
-                <span class="upload-icon">📜</span>
-                <p>上傳評核 JSON (.json)</p>
-                <button class="btn" onclick="document.getElementById('json-input').click()">選擇檔案</button>
-                <input type="file" id="json-input" hidden accept=".json">
-                <div id="json-name" class="file-name"></div>
-            </div>
-        </div>
-
         <div style="margin-bottom: 2rem;">
-            <label for="prompt-input"
+            <label for="skill-select"
                 style="display: block; margin-bottom: 10px; color: var(--text-secondary); font-weight: 500;">
-                優化提示詞 (選填):
+                選擇執行技能:
             </label>
-            <textarea id="prompt-input" class="prompt-box" placeholder="例如：特別加強根因分析部分的統計數據性，或指定改善對策的具體方向..."></textarea>
+            <select id="skill-select" class="prompt-box" style="min-height: auto; padding: 0.75rem 1rem;">
+                <option value="">-- 請選擇技能 --</option>
+            </select>
         </div>
 
-        <div style="text-align: center;">
+        <div id="dynamic-inputs-container">
+            <!-- 動態生成的輸入元件將注入於此 -->
+            <div
+                style="text-align: center; padding: 3rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); border-radius: 1rem; border: 2px dashed #475569;">
+                請先從上方選擇一項技能以開始
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
             <button class="btn" id="process-btn"
                 style="background: var(--primary-hover); padding: 1rem 3rem; font-size: 1.2rem;"
                 disabled>開始優化報告</button>
@@ -58,67 +50,206 @@
     </div>
 
     <script>
-        const pptInput = document.getElementById('ppt-input');
-        const jsonInput = document.getElementById('json-input');
-        const promptInput = document.getElementById('prompt-input');
-        const pptName = document.getElementById('ppt-name');
-        const jsonName = document.getElementById('json-name');
+        const skillSelect = document.getElementById('skill-select');
+        const dynamicContainer = document.getElementById('dynamic-inputs-container');
         const processBtn = document.getElementById('process-btn');
-
         const statusPanel = document.getElementById('status-panel');
         const statusLoader = document.querySelector('.loader');
         const statusText = document.getElementById('status-text');
         const resultArea = document.getElementById('result-area');
         const downloadLink = document.getElementById('download-link');
 
-        let selectedPpt = null;
-        let selectedJson = null;
+        let currentManifest = null;
+        let selectedFiles = {}; // 儲存動態檔案個體
 
-        // --- 拖拽功能實作 ---
-        const zones = [
-            { el: document.getElementById('ppt-zone'), input: pptInput, accept: ['.ppt', '.pptx'], setter: (f) => selectedPpt = f, nameNode: pptName },
-            { el: document.getElementById('json-zone'), input: jsonInput, accept: ['.json'], setter: (f) => selectedJson = f, nameNode: jsonName }
-        ];
-
-        zones.forEach(zone => {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                zone.el.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, false);
-            });
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                zone.el.addEventListener(eventName, () => {
-                    zone.el.classList.add('dragging');
-                }, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                zone.el.addEventListener(eventName, () => {
-                    zone.el.classList.remove('dragging');
-                }, false);
-            });
-
-            zone.el.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const file = dt.files[0];
-                handleFileSelection(file, zone);
-            }, false);
-        });
-
-        function handleFileSelection(file, zone) {
-            if (!file) return;
-
-            const ext = '.' + file.name.split('.').pop().toLowerCase();
-            if (zone.accept.includes(ext)) {
-                zone.setter(file);
-                zone.nameNode.innerText = `已選擇：${file.name}`;
-                checkInputs();
-            } else {
-                alert(`不支援的檔案格式！請上傳範疇內的文件：${zone.accept.join(', ')}`);
+        // 1. 初始化：獲取技能列表
+        async function initSkills() {
+            try {
+                const response = await fetch('/api/skills');
+                const skills = await response.json();
+                skills.forEach(skill => {
+                    const option = document.createElement('option');
+                    option.value = skill.id;
+                    option.textContent = `${skill.name} (v${skill.version})`;
+                    skillSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error('無法載入技能列表:', err);
+                updateUIError('初始化失敗', '無法從伺服器獲取技能清單');
             }
         }
+
+        // 2. 切換技能：獲取 Manifest 並渲染 UI
+        skillSelect.addEventListener('change', async (e) => {
+            const skillId = e.target.value;
+            if (!skillId) {
+                resetUI();
+                return;
+            }
+
+            try {
+                renderLoading('正在加載技能配置...');
+                const response = await fetch(`/api/skills/${skillId}`);
+                currentManifest = await response.json();
+                renderSkillUI(currentManifest);
+                statusPanel.classList.remove('active');
+            } catch (err) {
+                updateUIError('加載失敗', `無法獲取技能 '${skillId}' 的設定`);
+            }
+        });
+
+        function resetUI() {
+            currentManifest = null;
+            selectedFiles = {};
+            dynamicContainer.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); border-radius: 1rem; border: 2px dashed #475569;">
+                    請先從上方選擇一項技能以開始
+                </div>`;
+            processBtn.disabled = true;
+            resultArea.style.display = 'none';
+        }
+
+        function renderLoading(msg) {
+            statusPanel.classList.add('active');
+            statusText.innerText = msg;
+            if (statusLoader) statusLoader.style.animation = 'spin 1.5s linear infinite';
+        }
+
+        // 3. 動態渲染介面
+        function renderSkillUI(manifest) {
+            dynamicContainer.innerHTML = '';
+            selectedFiles = {};
+
+            const grid = document.createElement('div');
+            grid.className = 'dynamic-grid';
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = manifest.inputs.filter(i => i.type === 'file').length > 1 ? '1fr 1fr' : '1fr';
+            grid.style.gap = '20px';
+            grid.style.marginBottom = '2rem';
+
+            manifest.inputs.forEach(input => {
+                const wrapper = document.createElement('div');
+                wrapper.style.marginBottom = '1.5rem';
+
+                if (input.type === 'file') {
+                    const zone = createUploadZone(input);
+                    grid.appendChild(zone);
+                } else if (input.type === 'text') {
+                    const label = document.createElement('label');
+                    label.style.display = 'block';
+                    label.style.marginBottom = '10px';
+                    label.style.color = 'var(--text-secondary)';
+                    label.style.fontWeight = '500';
+                    label.textContent = input.label;
+
+                    const textarea = document.createElement('textarea');
+                    textarea.id = `input-${input.id}`;
+                    textarea.className = 'prompt-box';
+                    textarea.placeholder = input.placeholder || '';
+
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(textarea);
+                    dynamicContainer.appendChild(wrapper);
+                }
+            });
+
+            if (grid.children.length > 0) {
+                dynamicContainer.prepend(grid);
+            }
+            checkInputs();
+        }
+
+        function createUploadZone(input) {
+            const zone = document.createElement('div');
+            zone.className = 'upload-area';
+            zone.id = `zone-${input.id}`;
+            zone.innerHTML = `
+                <span class="upload-icon">${input.icon || '📁'}</span>
+                <p>${input.label}</p>
+                <button class="btn" type="button">選擇檔案</button>
+                <input type="file" id="input-${input.id}" hidden accept="${input.accept || '*'}">
+                <div id="name-${input.id}" class="file-name"></div>
+            `;
+
+            const realInput = zone.querySelector('input');
+            const btn = zone.querySelector('.btn');
+            const nameNode = zone.querySelector('.file-name');
+
+            btn.onclick = () => realInput.click();
+            realInput.onchange = (e) => handleFileSelection(e.target.files[0], input, nameNode, zone);
+
+            // 拖拽支援
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
+                zone.addEventListener(eName, (e) => { e.preventDefault(); e.stopPropagation(); });
+            });
+            ['dragenter', 'dragover'].forEach(eName => zone.addEventListener(eName, () => zone.classList.add('dragging')));
+            ['dragleave', 'drop'].forEach(eName => zone.addEventListener(eName, () => zone.classList.remove('dragging')));
+            zone.addEventListener('drop', (e) => handleFileSelection(e.dataTransfer.files[0], input, nameNode, zone));
+
+            return zone;
+        }
+
+        function handleFileSelection(file, inputSpec, nameNode, zone) {
+            if (!file) return;
+            const ext = '.' + file.name.split('.').pop().toLowerCase();
+            const allowed = (inputSpec.accept || '').split(',');
+
+            if (allowed.includes(ext) || inputSpec.accept === '*') {
+                selectedFiles[inputSpec.id] = file;
+                nameNode.innerText = `已選擇：${file.name}`;
+                checkInputs();
+            } else {
+                alert(`不支援的格式！請上傳：${inputSpec.accept}`);
+            }
+        }
+
+        function checkInputs() {
+            if (!currentManifest) return;
+            const requiredIds = currentManifest.inputs.filter(i => !i.optional).map(i => i.id);
+            const allSet = requiredIds.every(id => {
+                const inputSpec = currentManifest.inputs.find(i => i.id === id);
+                if (inputSpec.type === 'file') return !!selectedFiles[id];
+                const el = document.getElementById(`input-${id}`);
+                return el && el.value.trim() !== '';
+            });
+            processBtn.disabled = !allSet;
+        }
+
+        // 4. 提交表單
+        processBtn.addEventListener('click', async () => {
+            if (!currentManifest) return;
+
+            const formData = new FormData();
+            currentManifest.inputs.forEach(input => {
+                if (input.type === 'file') {
+                    if (selectedFiles[input.id]) formData.append(input.id, selectedFiles[input.id]);
+                } else {
+                    const el = document.getElementById(`input-${input.id}`);
+                    if (el) formData.append(input.id, el.value);
+                }
+            });
+
+            try {
+                renderLoading('正在處理任務，請稍候...');
+                resultArea.style.display = 'none';
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok && result.status === 'completed') {
+                    statusPanel.classList.remove('active');
+                    resultArea.style.display = 'block';
+                    downloadLink.href = `/api/download/${result.output_file}`;
+                } else {
+                    updateUIError(result.error_type || '執行出錯', result.message || '伺服器處理失敗');
+                }
+            } catch (err) {
+                updateUIError('連線異常', err.message);
+            }
+        });
 
         function updateUIError(type, msg) {
             statusPanel.classList.add('active');
@@ -126,65 +257,8 @@
             statusText.innerHTML = `<span style="color: #ff5252; font-weight: bold;">${type}</span><br><small style="color: #fca5a5;">${msg}</small>`;
         }
 
-        pptInput.addEventListener('change', (e) => {
-            handleFileSelection(e.target.files[0], zones[0]);
-        });
-
-        jsonInput.addEventListener('change', (e) => {
-            handleFileSelection(e.target.files[0], zones[1]);
-        });
-
-        function checkInputs() {
-            processBtn.disabled = !(selectedPpt && selectedJson);
-        }
-
-        processBtn.addEventListener('click', async () => {
-            try {
-                if (!selectedPpt || !selectedJson) return;
-
-                const formData = new FormData();
-                formData.append('report', selectedPpt);
-                formData.append('evaluation_json', selectedJson);
-                formData.append('prompt', promptInput.value);
-
-                // 重設狀態面板
-                statusPanel.classList.add('active');
-                resultArea.style.display = 'none';
-                statusText.innerText = '正在分析並優化報告...';
-                if (statusLoader) statusLoader.style.animation = 'spin 1.5s linear infinite';
-
-                // 1. 前端 JSON 語法預檢 (智慧容錯模式)
-                try {
-                    const jsonText = await selectedJson.text();
-                    JSON.parse(jsonText);
-                } catch (e) {
-                    // 偵測到語法錯誤，但我們選擇相信後端的「自動清洗」能力
-                    console.warn('前端偵測到 JSON 語法疑慮，嘗試交由後端自動修正:', e.message);
-                    statusText.innerHTML = `正在分析並優化報告...<br><small style="color: #818cf8;">(偵測到 JSON 格式瑕疵，已啟動自動容錯修復模式)</small>`;
-                }
-
-                // 2. 傳送請求 (讓後端 Regex 發揮作用)
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.status === 'completed') {
-                    statusPanel.classList.remove('active');
-                    resultArea.style.display = 'block';
-                    downloadLink.href = `/api/download/${result.output_file}`;
-                } else {
-                    const errorMsg = result.message || '伺服器處理失敗';
-                    const errorType = result.error_type || '處理出錯';
-                    updateUIError(errorType, errorMsg);
-                }
-            } catch (err) {
-                console.error(err);
-                updateUIError('系統連線異常', err.message || '無法與伺服器通訊');
-            }
-        });
+        // 啟動
+        initSkills();
     </script>
 </body>
 

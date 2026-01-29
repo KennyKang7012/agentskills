@@ -1,6 +1,24 @@
 ---
 name: fa-report-improvement
 description: Improve semiconductor failure analysis (FA) reports based on professional 8D evaluation criteria. Supports both .ppt and .pptx formats with automatic conversion. Use when working with FA reports or requesting report improvement.
+version: 2.1.5
+entrypoint: scripts/improve_fa_report.py
+inputs:
+  - id: report
+    label: FA 報告 (.ppt/pptx)
+    type: file
+    accept: .ppt,.pptx
+    icon: 📊
+  - id: evaluation_json
+    label: 評核 JSON (.json)
+    type: file
+    accept: .json
+    icon: 📜
+  - id: prompt
+    label: 優化提示詞 (選填)
+    type: text
+    placeholder: 例如：特別加強根因分析部分的統計數據性，或指定改善對策的具體方向...
+    optional: true
 ---
 
 # FA Report Improvement
@@ -217,6 +235,6 @@ For detailed information:
 - `references/ppt-conversion-guide.md` - Format conversion details
 
 ---
-**版本**: 2.1.4  
-**最後更新**: 2026-01-28
+**版本**: 2.1.5  
+**最後更新**: 2026-01-29
 
