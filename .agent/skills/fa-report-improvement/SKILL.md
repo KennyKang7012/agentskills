@@ -1,7 +1,7 @@
 ---
 name: fa-report-improvement
-description: Improve semiconductor failure analysis (FA) reports based on professional 8D evaluation criteria. Supports both .ppt and .pptx formats with automatic conversion. Use when working with FA reports or requesting report improvement.
-version: 2.1.5
+description: Improve semiconductor failure analysis (FA) reports based on professional 8D evaluation criteria. Supports both .ppt and .pptx formats with automatic conversion. Features dynamic content injection from LLM evaluations and closed-loop execution manifests.
+version: 2.2.0
 entrypoint: scripts/improve_fa_report.py
 inputs:
   - id: report
@@ -28,13 +28,9 @@ inputs:
 Comprehensive improvement system for semiconductor FA reports with automatic .ppt to .pptx conversion support.
 
 **Key Features:**
-- ✅ Supports both .ppt (legacy) and .pptx formats
-- ✅ Automatic format conversion on Windows and Linux
-- ✅ Professional 8D methodology evaluation  
-- ✅ Statistical validation integration
-- ✅ Automated content enhancement
-- ✅ Dual JSON format support (Array/Object)
-- ✅ **JSON Resilience (v2.1.4)**: Advanced auto-sanitization of trailing dots/commas and Markdown code blocks for direct LLM/CLI usage.
+- ✅ **Dynamic Injection (v2.2.0)**: Real-time extraction of improvement suggestions from evaluation JSON, replacing hardcoded templates.
+- ✅ **Success Manifest (v2.2.0)**: Automated generation of `_manifest.json` recording all report modifications for LLM verification.
+- ✅ **JSON Resilience (v2.1.4)**: Advanced auto-sanitization of trailing dots/commas and Markdown code blocks.
 
 ## Quick Start
 
@@ -109,9 +105,19 @@ The script built-in logic automatically sanitizes malformed JSON (e.g., trailing
 **Improvement Trigger Thresholds:**
 | Dimension | Threshold | Action |
 |-----------|-----------|--------|
-| 基本資訊完整性 | < 80 | Add basic info slide |
-| 根因分析 | < 80 | Add statistical analysis |
-| 改善對策 | < 85 | Add prevention measures |
+| 基本資訊完整性 | < 80 | Add dynamic basic info slide with suggestions |
+| 根因分析 | < 80 | Add dynamic statistical analysis from LLM |
+| 改善對策 | < 85 | Add dynamic prevention measures from LLM |
+
+### Step 4: Success Manifest Generation
+The script generates a `[output].manifest.json` recording exactly what was added. This enables **Closed-Loop Verification**:
+```json
+{
+  "execution_status": "success",
+  "added_slides": [{"dimension": "Root Cause", "suggestions_count": 3}],
+  "summary_applied": true
+}
+```
 
 ### Step 4: Quality Verification
 
@@ -235,6 +241,6 @@ For detailed information:
 - `references/ppt-conversion-guide.md` - Format conversion details
 
 ---
-**版本**: 2.1.5  
-**最後更新**: 2026-01-29
+**版本**: 2.2.0  
+**最後更新**: 2026-01-31
 
