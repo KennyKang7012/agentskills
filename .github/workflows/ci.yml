@@ -1,0 +1,43 @@
+name: App Continuous Integration
+
+# 1. 定義觸發時機 (Triggers)
+on:
+  push:
+    branches: [ "main", "feat/*" ]  # 當代碼推送到 main 或以 feat/ 開頭的分支時觸發
+  pull_request:
+    branches: [ "main" ]           # 當發起合併到 main 的請求時觸發
+
+jobs:
+  test:
+    # 2. 定義執行環境 (Platform)
+    runs-on: ubuntu-latest         # 使用 GitHub 提供的最新版 Ubuntu 伺服器
+
+    steps:
+    # 3. 步驟清單 (Steps)
+    
+    # 步驟 3.1: 檢出代碼 (Checkout)
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 步驟 3.2: 設定 Python 環境
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    # 步驟 3.3: 安裝 uv (我們專案使用的套件管理器)
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    # 步驟 3.4: 同步依賴項 (如同您在本地下 uv sync)
+    - name: Install dependencies
+      run: uv sync
+
+    # 步驟 3.5: 執行自動化測試 (CI 的核心！)
+    - name: Run verification tests
+      run: |
+        # 使用我們之前練習過的指令，確保路徑正確
+        uv run python -m tests.verify_phase3_core
+        uv run python -m tests.test_llm_parsing
